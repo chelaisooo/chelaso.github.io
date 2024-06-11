@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Ácido-Base</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        box-sizing: border-box;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Calculadora de Ácido-Base</h2>
+    <label for="acid-base">Seleccione el tipo de función:</label>
+    <select id="acid-base" onchange="showConstantField()">
+        <option value="acid-strong">Ácido fuerte</option>
+        <option value="acid-weak">Ácido débil</option>
+        <option value="base-strong">Base fuerte</option>
+        <option value="base-weak">Base débil</option>
+    </select>
+    <div id="constant-field" style="display:none;">
+        <input type="number" id="input-constant" placeholder="Constante de equilibrio">
+    </div>
+    <div id="input-fields">
+        <input type="number" id="input-concentration" placeholder="Concentración (M)">
+    </div>
+    <button onclick="calculate()">Calcular</button>
+    <button onclick="goBack()">Volver atrás</button>
+    <div id="result"></div>
+</div>
+<script>
+    function showConstantField() {
+        var type = document.getElementById("acid-base").value;
+        var constantField = document.getElementById("constant-field");
+        if (type === "acid-weak" || type === "base-weak") {
+            constantField.style.display = "block";
+        } else {
+            constantField.style.display = "none";
+        }
+    }
+
+    function calculate() {
+        var type = document.getElementById("acid-base").value;
+        var concentration = parseFloat(document.getElementById("input-concentration").value);
+        var constant = (type === "acid-weak" || type === "base-weak") ? parseFloat(document.getElementById("input-constant").value) : 0;
+        var resultContainer = document.getElementById("result");
+        var pH, pOH, H, OH;
+
+        if (type === "acid-strong") {
+            H = concentration;
+            pH = -Math.log10(H);
+            OH = 1.0e-14 / H;
+            pOH = -Math.log10(OH);
+        } else if (type === "acid-weak") {
+            H = Math.sqrt(1.0e-14 * constant * concentration);
+            pH = -Math.log10(H);
+            OH = 1.0e-14 / H;
+            pOH = -Math.log10(OH);
+        } else if (type === "base-strong") {
+            OH = concentration;
+            pH = 14 + Math.log10(OH);
+            H = 1.0e-14 / OH;
+            pOH = 14 - pH;
+        } else if (type === "base-weak") {
+            OH = Math.sqrt(1.0e-14 * constant * concentration);
+            pOH = -Math.log10(OH);
+            H = constant / OH;
+            pH = -Math.log10(H);
+        }
+
+        resultContainer.innerHTML = "<p>pH: " + pH.toFixed(2) + "</p><p>pOH: " + pOH.toFixed(2) + "</p><p>[H+]: " + H.toExponential(2) + " M</p><p>[OH-]: " + OH.toExponential(2) + " M</p>";
+    }
+
+    function goBack() {
+        window.history.back();
+    }
+</script>
+</body>
+</html>
